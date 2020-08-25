@@ -1,9 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/navgraph"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navgraph"
     app:startDestination="@id/fragmentMenu">
+
     <fragment
         android:id="@+id/fragmentMenu"
         android:name="com.example.kotlinllamadas.fragments.FragmentMenu"
-        android:label="FragmentMenu" />
+        android:label="fragment_menu"
+        tools:layout="@layout/fragment_menu">
+
+        <action
+            android:id="@+id/action_fragmentMenu_to_fragmentAgregar"
+            app:destination="@id/fragmentAgregar" />
+        <argument
+            android:name="listaContactos1"
+            app:argType="com.example.kotlinllamadas.objetos.Contacto[]" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragmentAgregar"
+        android:name="com.example.kotlinllamadas.fragments.FragmentAgregar"
+        android:label="fragment_agregar"
+        tools:layout="@layout/fragment_agregar">
+
+        <argument
+            android:name="listaContactos"
+            app:argType="com.example.kotlinllamadas.objetos.Contacto[]" />
+        <action
+            android:id="@+id/action_fragmentAgregar_to_fragmentMenu"
+            app:destination="@id/fragmentMenu" />
+    </fragment>
+
 </navigation>
