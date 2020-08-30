@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,7 +26,7 @@ class FragmentMenu : Fragment() {
     lateinit var v: View
     private var flagAdd: Boolean = true
     private var flagCall: Boolean = false
-    private var flagActivarAgregar: Boolean = true
+    private var flagActivarAgregar: Boolean = false
     private var contactos: MutableList<Contacto> = ArrayList()
     private lateinit var recyclerContacto: RecyclerView
     private lateinit var btnAgregar: FloatingActionButton
@@ -36,7 +37,6 @@ class FragmentMenu : Fragment() {
         v = inflater.inflate(R.layout.fragment_menu, container, false)
         recyclerContacto = v.findViewById(R.id.recycler)
         btnAgregar = v.findViewById(R.id.fab_add_patient)
-
         recyclerContacto.setHasFixedSize(true)
         linearLayoutManager = LinearLayoutManager(context)
         recyclerContacto.layoutManager = linearLayoutManager
@@ -59,6 +59,7 @@ class FragmentMenu : Fragment() {
 
         btnAgregar.setOnClickListener {
             flagActivarAgregar = true
+            Log.d("TAGBOTON", contactos.toString())
             val action = FragmentMenuDirections.actionFragmentMenuToFragmentAgregar(contactos.toTypedArray())
             v.findNavController().navigate(action)
         }
@@ -66,12 +67,15 @@ class FragmentMenu : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        //if(flagActivarAgregar) {
-            //Pide a la lista de contactos nueva
+
+        //Guardar sólo si es distinto a null
+        if(flagActivarAgregar) {
+            Log.d("TAGBOTON", "mesi")
             contactos = FragmentMenuArgs.fromBundle(requireArguments()).listaContactos1.toMutableList()
-            //flagActivarAgregar = false
             contactosListAdapter.notifyDataSetChanged()
-        //}
+            flagActivarAgregar = false
+        }
+
     }
 
     ///////////////////////////////////////////Aquí empiezan los permisos y llamadas///////////////////////////////////////////
@@ -119,7 +123,6 @@ class FragmentMenu : Fragment() {
         }
             startActivity(intent)
         }
-
     }
 
 }

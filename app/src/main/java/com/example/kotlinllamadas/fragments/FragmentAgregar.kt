@@ -1,6 +1,7 @@
 package com.example.kotlinllamadas.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,7 +20,6 @@ class FragmentAgregar : Fragment() {
     private lateinit var btnAgregarContacto: Button
     private lateinit var nombreContacto: EditText
     private lateinit var numeroContacto: EditText
-    private var flagValido: Boolean = false
     lateinit var nombre: String
     lateinit var numero: String
 
@@ -42,12 +42,18 @@ class FragmentAgregar : Fragment() {
         //Agrega el contacto
         btnAgregarContacto.setOnClickListener{
 
+            //Toma los EditText
             nombre = nombreContacto.text.toString()
             numero = numeroContacto.text.toString()
 
-            if (nombre.isNotEmpty() && numero.isNotEmpty()){
+            if (nombre.isNotEmpty() && numero.isNotEmpty()) {
                 //Lo pasa si los espacios no están vacios
                 contactos.add(Contacto(nombre, numero, R.drawable.ic_baseline_local_pizza_24))
+
+                for (element in contactos) {
+                    Log.d("TAG", element.toString())
+                }
+
                 val action21 = FragmentAgregarDirections.actionFragmentAgregarToFragmentMenu(contactos.toTypedArray())
                 v.findNavController().navigate(action21)
             }
