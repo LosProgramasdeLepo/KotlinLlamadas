@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.kotlinllamadas.R
 import com.example.kotlinllamadas.objetos.Contacto
 
-class AdapterContactos (var listaContactos : MutableList<Contacto>, val onItemClick : (Int) -> Unit) : RecyclerView.Adapter<AdapterContactos.ContactosHolder>() {
+class AdapterContactos (private var listaContactos : MutableList<Contacto>, val onItemClick : (Int) -> Unit) : RecyclerView.Adapter<AdapterContactos.ContactosHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContactosHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.itemcontacto, parent, false)
@@ -23,7 +23,7 @@ class AdapterContactos (var listaContactos : MutableList<Contacto>, val onItemCl
         return listaContactos.size
     }
 
-    override fun onBindViewHolder(holder: AdapterContactos.ContactosHolder, position: Int) {
+    override fun onBindViewHolder(holder: ContactosHolder, position: Int) {
         //Detecta la imágen y el ícono de cada ítem
         holder.setNombre(listaContactos[position].nombre)
         holder.setNumero(listaContactos[position].numero)
@@ -33,11 +33,6 @@ class AdapterContactos (var listaContactos : MutableList<Contacto>, val onItemCl
         holder.getCardLayout().setOnClickListener {
             onItemClick(position)
         }
-    }
-
-    fun setData(newData: ArrayList<Contacto>) {
-        this.listaContactos = newData
-        this.notifyDataSetChanged()
     }
 
     //Muestra el nombre y el ícono apropiadamente
@@ -51,7 +46,7 @@ class AdapterContactos (var listaContactos : MutableList<Contacto>, val onItemCl
         }
 
         fun setIcono(@DrawableRes icon: Int) {
-            val ico: ImageView = view.findViewById(R.id.imgIcono);
+            val ico: ImageView = view.findViewById(R.id.imgIcono)
             ico.setImageResource(icon)
         }
 
@@ -64,11 +59,6 @@ class AdapterContactos (var listaContactos : MutableList<Contacto>, val onItemCl
             return view.findViewById(R.id.cardView)
         }
 
-    }
-
-    fun addData (data: Contacto) {
-        this.listaContactos.add(data)
-        this.notifyDataSetChanged()
     }
 
 }

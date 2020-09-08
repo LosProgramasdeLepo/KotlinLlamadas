@@ -14,9 +14,7 @@
         <action
             android:id="@+id/action_fragmentMenu_to_fragmentAgregar"
             app:destination="@id/fragmentAgregar" />
-        <argument
-            android:name="listaContactos1"
-            app:argType="com.example.kotlinllamadas.objetos.Contacto[]" />
+
     </fragment>
 
     <fragment
@@ -25,9 +23,6 @@
         android:label="fragment_agregar"
         tools:layout="@layout/fragment_agregar">
 
-        <argument
-            android:name="listaContactos"
-            app:argType="com.example.kotlinllamadas.objetos.Contacto[]" />
         <action
             android:id="@+id/action_fragmentAgregar_to_fragmentMenu"
             app:destination="@id/fragmentMenu" />

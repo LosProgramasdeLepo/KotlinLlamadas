@@ -9,21 +9,28 @@ import android.widget.Button
 import android.widget.EditText
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
+import com.example.kotlinllamadas.ListaContactos.contactos
 import com.example.kotlinllamadas.R
 import com.example.kotlinllamadas.objetos.Contacto
 import com.google.android.material.snackbar.Snackbar
 
+
 class FragmentAgregar : Fragment() {
 
-    lateinit var v: View
-    var contactos : MutableList<Contacto> = ArrayList()
+    private lateinit var v: View
     private lateinit var btnAgregarContacto: Button
     private lateinit var nombreContacto: EditText
     private lateinit var numeroContacto: EditText
-    lateinit var nombre: String
+    private lateinit var nombre: String
     lateinit var numero: String
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
+    //private var mContext: Context? = null
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View?
     {
         v =  inflater.inflate(R.layout.fragment_agregar, container, false)
         btnAgregarContacto = v.findViewById(R.id.botonAgregaContacto)
@@ -36,9 +43,6 @@ class FragmentAgregar : Fragment() {
     override fun onStart() {
         super.onStart()
 
-        //Pide el array
-        contactos = FragmentAgregarArgs.fromBundle(requireArguments()).listaContactos.toMutableList()
-
         //Agrega el contacto
         btnAgregarContacto.setOnClickListener{
 
@@ -48,13 +52,15 @@ class FragmentAgregar : Fragment() {
 
             if (nombre.isNotEmpty() && numero.isNotEmpty()) {
                 //Lo pasa si los espacios no están vacios
-                contactos.add(Contacto(nombre, numero, R.drawable.ic_baseline_local_pizza_24))
+                contactos.add(Contacto(nombre, numero, R.drawable.ic_baseline_local_pizza_24, "#FFFFFF"))
+                Log.d("lcenagregar", contactos.toString())
 
-                for (element in contactos) {
-                    Log.d("TAG", element.toString())
-                }
+                /*
+                var tinydb = TinyDB(mContext)
+                tinydb.getListaContactos("Contactos")
+                */
 
-                val action21 = FragmentAgregarDirections.actionFragmentAgregarToFragmentMenu(contactos.toTypedArray())
+                val action21 = FragmentAgregarDirections.actionFragmentAgregarToFragmentMenu()
                 v.findNavController().navigate(action21)
             }
 
@@ -62,5 +68,17 @@ class FragmentAgregar : Fragment() {
 
         }
     }
+
+    /*
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        mContext = context
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        mContext = null
+    }
+    */
 
 }
