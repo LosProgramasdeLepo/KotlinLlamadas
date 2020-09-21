@@ -545,9 +545,7 @@ class TinyDB(appContext: Context?) {
         preferences = PreferenceManager.getDefaultSharedPreferences(appContext)
     }
 
-    fun getListaContactos(
-        key: String?
-    ): MutableList<Contacto> {
+    fun getListaContactos(key: String?): MutableList<Contacto> {
         val gson = Gson()
         val objStrings = getListString(key)
         val objects = ArrayList<Contacto>()
@@ -557,10 +555,7 @@ class TinyDB(appContext: Context?) {
         }
         return objects
     }
-    fun putListaContactos(
-        key: String?,
-        objArray: MutableList<Contacto>
-    ) {
+    fun putListaContactos(key: String?, objArray: MutableList<Contacto>) {
         checkForNullKey(key)
         val gson = Gson()
         val objStrings = ArrayList<String>()

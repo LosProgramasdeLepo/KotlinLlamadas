@@ -1,5 +1,6 @@
 package com.example.kotlinllamadas.fragments
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -11,6 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import com.example.kotlinllamadas.ListaContactos.contactos
 import com.example.kotlinllamadas.R
+import com.example.kotlinllamadas.TinyDB
 import com.example.kotlinllamadas.objetos.Contacto
 import com.google.android.material.snackbar.Snackbar
 
@@ -22,9 +24,9 @@ class FragmentAgregar : Fragment() {
     private lateinit var nombreContacto: EditText
     private lateinit var numeroContacto: EditText
     private lateinit var nombre: String
-    lateinit var numero: String
+    private lateinit var numero: String
 
-    //private var mContext: Context? = null
+    private var mContext: Context? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -55,10 +57,10 @@ class FragmentAgregar : Fragment() {
                 contactos.add(Contacto(nombre, numero, R.drawable.ic_baseline_local_pizza_24, "#FFFFFF"))
                 Log.d("lcenagregar", contactos.toString())
 
-                /*
-                var tinydb = TinyDB(mContext)
-                tinydb.getListaContactos("Contactos")
-                */
+                if(mContext != null){
+                    val tinydb = TinyDB(mContext)
+                    tinydb.getListaContactos("Contactos")
+                }
 
                 val action21 = FragmentAgregarDirections.actionFragmentAgregarToFragmentMenu()
                 v.findNavController().navigate(action21)
@@ -68,17 +70,5 @@ class FragmentAgregar : Fragment() {
 
         }
     }
-
-    /*
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        mContext = context
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        mContext = null
-    }
-    */
 
 }

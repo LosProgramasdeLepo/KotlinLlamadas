@@ -1,6 +1,7 @@
 package com.example.kotlinllamadas.fragments
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -13,32 +14,40 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kotlinllamadas.ListaContactos.contactos
 import com.example.kotlinllamadas.R
+import com.example.kotlinllamadas.TinyDB
 import com.example.kotlinllamadas.adapter.AdapterContactos
 import com.example.kotlinllamadas.objetos.Contacto
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
+import java.util.*
 
 //Preguntas: ¿cómo hago con el context? como da null se rompe y no puedo uasr requireContext o requireActivity
 //Preguntas: ¿dónde debería poner el get y el set? vengo teniendo problemas con eso
+//Preguntas: ¿cómo hago para que no se salga de los límites?
+//Preguntas: ¿cómo hago para que se actualice sin quilombo?
 
 class FragmentMenu : Fragment() {
 
     private lateinit var v: View
     private var flagCall: Boolean = false
 
-    //private var mContext: Context? = null
+    private var mContext: Context? = null
 
     private lateinit var recyclerContacto: RecyclerView
     private lateinit var btnAgregar: FloatingActionButton
     private lateinit var linearLayoutManager: LinearLayoutManager
     private lateinit var contactosListAdapter: AdapterContactos
-    //var tinydb = TinyDB(context)
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
 
         v = inflater.inflate(R.layout.fragment_menu, container, false)
         recyclerContacto = v.findViewById(R.id.recycler)
@@ -46,41 +55,77 @@ class FragmentMenu : Fragment() {
         recyclerContacto.setHasFixedSize(true)
         linearLayoutManager = LinearLayoutManager(context)
         recyclerContacto.layoutManager = linearLayoutManager
-        contactosListAdapter = AdapterContactos(contactos) { position -> onItemClick(position) }
+        contactosListAdapter =  AdapterContactos(contactos) { position -> onItemClick(position) }
         recyclerContacto.adapter = contactosListAdapter
 
         if (contactos.size <= 4) {
             //Items de la lista por defecto
-            contactos.add(Contacto("EMERGENCIAS", "107", R.drawable.ic_baseline_local_taxi_24, "#FFFFFF"))
-            contactos.add(Contacto("POLICÍA", "911", R.drawable.ic_baseline_local_pizza_24, "#FFFFFF"))
-            contactos.add(Contacto("BOMBEROS", "100", R.drawable.ic_baseline_fireplace_24, "#FFFFFF"))
-            contactos.add(Contacto("PIZZERÍA", "7932-1281", R.drawable.ic_baseline_local_pizza_24, "#FFFFFF"))
+            contactos.add(
+                Contacto(
+                    "EMERGENCIAS",
+                    "107",
+                    R.drawable.ic_baseline_local_taxi_24,
+                    "#FFFFFF"
+                )
+            )
+            contactos.add(
+                Contacto(
+                    "POLICÍA",
+                    "911",
+                    R.drawable.ic_baseline_local_pizza_24,
+                    "#FFFFFF"
+                )
+            )
+            contactos.add(
+                Contacto(
+                    "BOMBEROS",
+                    "100",
+                    R.drawable.ic_baseline_fireplace_24,
+                    "#FFFFFF"
+                )
+            )
+            contactos.add(
+                Contacto(
+                    "PIZZERÍA",
+                    "7932-1281",
+                    R.drawable.ic_baseline_local_pizza_24,
+                    "#FFFFFF"
+                )
+            )
+            Log.d("dd", contactos.toString())
         }
 
-        //Intento original: tinydb.putListaContactos("Contactos", contactos)
-
-        /*
-        if(mContext != null) {
-                                                                       var tinydb = TinyDB(mContext)
-        tinydb.putListaContactos("Contactos", contactos)
+        if(mContext != null) {  
+            val tinydb = TinyDB(mContext)
+            tinydb.putListaContactos("Contactos", contactos)
         }
-        */
+
+        ///////////////////////////////////////////Acá empieza lo de mover items///////////////////////////////////////////
+        val touchHelper = object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0) {
+            override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                val sourcePosition = viewHolder.adapterPosition
+                val targetPosition = target.adapterPosition
+                Collections.swap(contactos, sourcePosition, targetPosition)
+                contactosListAdapter.notifyItemMoved(sourcePosition, targetPosition)
+                Log.d("dd", contactos.toString())
+
+                return true
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                TODO("Not yet implemented")
+            }
+        }
+
+        val itemTouchHelper = ItemTouchHelper(touchHelper)
+        itemTouchHelper.attachToRecyclerView(recyclerContacto)
+        ///////////////////////////////////////////Acá termina lo de mover items///////////////////////////////////////////
 
         return v
 
-    }
-
-    /*
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        mContext = context
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        mContext = null
-    }
-    */
+        }
 
     override fun onStart() {
         super.onStart()
