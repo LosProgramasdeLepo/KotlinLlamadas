@@ -555,6 +555,7 @@ class TinyDB(appContext: Context?) {
         }
         return objects
     }
+
     fun putListaContactos(key: String?, objArray: MutableList<Contacto>) {
         checkForNullKey(key)
         val gson = Gson()

@@ -23,6 +23,11 @@ class AdapterContactos (private var listaContactos : MutableList<Contacto>, val 
         return listaContactos.size
     }
 
+    fun setData (newData: ArrayList<Contacto>){
+        this.listaContactos = newData
+        this.notifyDataSetChanged()
+    }
+
     override fun onBindViewHolder(holder: ContactosHolder, position: Int) {
         //Detecta la imágen y el ícono de cada ítem
         holder.setNombre(listaContactos[position].nombre)

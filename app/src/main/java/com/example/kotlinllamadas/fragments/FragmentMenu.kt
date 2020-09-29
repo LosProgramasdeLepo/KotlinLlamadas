@@ -26,18 +26,11 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import java.util.*
 
-//Preguntas: ¿cómo hago con el context? como da null se rompe y no puedo uasr requireContext o requireActivity
-//Preguntas: ¿dónde debería poner el get y el set? vengo teniendo problemas con eso
-//Preguntas: ¿cómo hago para que no se salga de los límites?
-//Preguntas: ¿cómo hago para que se actualice sin quilombo?
-
 class FragmentMenu : Fragment() {
 
     private lateinit var v: View
     private var flagCall: Boolean = false
-
-    private var mContext: Context? = null
-
+    private lateinit var mContext: Context
     private lateinit var recyclerContacto: RecyclerView
     private lateinit var btnAgregar: FloatingActionButton
     private lateinit var linearLayoutManager: LinearLayoutManager
@@ -58,7 +51,8 @@ class FragmentMenu : Fragment() {
         contactosListAdapter =  AdapterContactos(contactos) { position -> onItemClick(position) }
         recyclerContacto.adapter = contactosListAdapter
 
-        if (contactos.size <= 4) {
+        //Contactos por defecto
+        if (contactos.size < 4) {
             //Items de la lista por defecto
             contactos.add(
                 Contacto(
@@ -95,40 +89,56 @@ class FragmentMenu : Fragment() {
             Log.d("dd", contactos.toString())
         }
 
-        if(mContext != null) {  
-            val tinydb = TinyDB(mContext)
-            tinydb.putListaContactos("Contactos", contactos)
-        }
+        //Guarda los contactos por defecto en TinyDB
+        mContext = requireActivity()
+        val tinydb = TinyDB(mContext)
+        tinydb.putListaContactos("Contactos", contactos)
 
         ///////////////////////////////////////////Acá empieza lo de mover items///////////////////////////////////////////
-        val touchHelper = object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0) {
-            override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder,
+
+        val touchHelper = object : ItemTouchHelper.SimpleCallback(
+            ItemTouchHelper.UP or ItemTouchHelper.DOWN,
+            0
+        ) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
                 target: RecyclerView.ViewHolder
             ): Boolean {
                 val sourcePosition = viewHolder.adapterPosition
                 val targetPosition = target.adapterPosition
+                //Notifica los cambios
                 Collections.swap(contactos, sourcePosition, targetPosition)
                 contactosListAdapter.notifyItemMoved(sourcePosition, targetPosition)
                 Log.d("dd", contactos.toString())
-
+                val item: Contacto = contactos.get(sourcePosition)
+                contactos.removeAt(sourcePosition)
+                contactos.add(targetPosition, item)
+                //Guarda cambios en TinyDB
+                tinydb.putListaContactos("Contactos", contactos)
                 return true
+                //Hacer un índice para el objeto
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 TODO("Not yet implemented")
             }
-        }
 
+
+        }
         val itemTouchHelper = ItemTouchHelper(touchHelper)
         itemTouchHelper.attachToRecyclerView(recyclerContacto)
+
         ///////////////////////////////////////////Acá termina lo de mover items///////////////////////////////////////////
 
         return v
 
-        }
+    }
 
+    //Acá hay botones
     override fun onStart() {
         super.onStart()
+        //El botón que te lleva al fragment para agregar contactos
         btnAgregar.setOnClickListener {
             Log.d("lcenbotonagregar", contactos.toString())
             val action = FragmentMenuDirections.actionFragmentMenuToFragmentAgregar()
@@ -136,14 +146,19 @@ class FragmentMenu : Fragment() {
         }
     }
 
+    //Acá está lo relacionado a agregar contactos
     override fun onResume() {
         super.onResume()
         Log.d("lccuandovuelve", contactos.toString())
-        contactosListAdapter.notifyDataSetChanged()
+        //Notifica los cambios y los guarda en la base de datos
+        mContext = requireActivity()
+        val tinydb = TinyDB(mContext)
+        contactos = tinydb.getListaContactos("Contactos")
     }
 
     ///////////////////////////////////////////Acá empiezan los permisos y llamadas///////////////////////////////////////////
 
+    //Botón para llamar
     private fun onItemClick(position: Int) {
         checkPermission()
         if(flagCall) {
@@ -151,6 +166,7 @@ class FragmentMenu : Fragment() {
         }
     }
 
+    //Chequea los permisos
     private fun checkPermission() {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
             Snackbar.make(v, "capo, necesitamos ese permiso", Snackbar.LENGTH_SHORT).show()
@@ -188,6 +204,7 @@ class FragmentMenu : Fragment() {
 
     }
 
+    //Llama
     private fun startCall(position: Int, listaContactos: MutableList<Contacto>) {
         if (flagCall){
             //Cambiar el DIAL por call para que llame
@@ -201,5 +218,7 @@ class FragmentMenu : Fragment() {
             startActivity(intent)
         }
     }
+
+    ///////////////////////////////////////////Acá terminan los permisos y llamadas///////////////////////////////////////////
 
 }
