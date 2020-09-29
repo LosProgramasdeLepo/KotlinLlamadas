@@ -48,11 +48,13 @@ class FragmentMenu : Fragment() {
         recyclerContacto.setHasFixedSize(true)
         linearLayoutManager = LinearLayoutManager(context)
         recyclerContacto.layoutManager = linearLayoutManager
-        contactosListAdapter =  AdapterContactos(contactos) { position -> onItemClick(position) }
-        recyclerContacto.adapter = contactosListAdapter
+
+        mContext = requireActivity()
+        val tinydb = TinyDB(mContext)
+        contactos = tinydb.getListaContactos("Contactos")
 
         //Contactos por defecto
-        if (contactos.size < 4) {
+        if (contactos.size == 0) {
             //Items de la lista por defecto
             contactos.add(
                 Contacto(
@@ -87,12 +89,12 @@ class FragmentMenu : Fragment() {
                 )
             )
             Log.d("dd", contactos.toString())
+            tinydb.putListaContactos("Contactos", contactos)
         }
 
-        //Guarda los contactos por defecto en TinyDB
-        mContext = requireActivity()
-        val tinydb = TinyDB(mContext)
-        tinydb.putListaContactos("Contactos", contactos)
+        //Adaptador
+        contactosListAdapter =  AdapterContactos(contactos) { position -> onItemClick(position) }
+        recyclerContacto.adapter = contactosListAdapter
 
         ///////////////////////////////////////////Acá empieza lo de mover items///////////////////////////////////////////
 
@@ -108,20 +110,32 @@ class FragmentMenu : Fragment() {
                 val sourcePosition = viewHolder.adapterPosition
                 val targetPosition = target.adapterPosition
                 //Notifica los cambios
-                Collections.swap(contactos, sourcePosition, targetPosition)
-                contactosListAdapter.notifyItemMoved(sourcePosition, targetPosition)
                 Log.d("dd", contactos.toString())
                 val item: Contacto = contactos.get(sourcePosition)
+                Collections.swap(contactos, sourcePosition,targetPosition)
                 contactos.removeAt(sourcePosition)
                 contactos.add(targetPosition, item)
+                //contactosListAdapter.notifyDataSetChanged()
                 //Guarda cambios en TinyDB
-                tinydb.putListaContactos("Contactos", contactos)
+                contactosListAdapter.notifyItemMoved(sourcePosition,targetPosition)
+                Log.d("mesu", "sads")
                 return true
-                //Hacer un índice para el objeto
             }
 
+            //No utilizado
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 TODO("Not yet implemented")
+            }
+
+            override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
+                super.onSelectedChanged(viewHolder, actionState)
+                when (actionState) {
+                    ItemTouchHelper.ACTION_STATE_IDLE -> { //cuando se suelta la app agarrada
+                        tinydb.putListaContactos("Contactos", contactos)
+                        contactosListAdapter.notifyDataSetChanged()
+                        Log.d("tagop", "ta chikito")
+                    }
+                }
             }
 
 

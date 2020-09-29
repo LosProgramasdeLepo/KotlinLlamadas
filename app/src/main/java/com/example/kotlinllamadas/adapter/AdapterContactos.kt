@@ -33,6 +33,7 @@ class AdapterContactos (private var listaContactos : MutableList<Contacto>, val 
         holder.setNombre(listaContactos[position].nombre)
         holder.setNumero(listaContactos[position].numero)
         holder.setIcono(listaContactos[position].icono)
+        //holder.setColor(listaContactos[position].color)
 
         //OnClick
         holder.getCardLayout().setOnClickListener {
@@ -59,6 +60,14 @@ class AdapterContactos (private var listaContactos : MutableList<Contacto>, val 
             val num: TextView = view.findViewById(R.id.txtNumero)
             num.text = numero
         }
+
+        /*
+        fun setColor(color: String) {
+            val clr: CardView = view.findViewById(R.id.cardView)
+            clr.setCardBackgroundColor(Color.RED);
+        }
+
+         */
 
         fun getCardLayout (): CardView {
             return view.findViewById(R.id.cardView)
