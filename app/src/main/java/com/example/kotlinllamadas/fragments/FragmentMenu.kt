@@ -24,7 +24,6 @@ import com.example.kotlinllamadas.adapter.AdapterContactos
 import com.example.kotlinllamadas.objetos.Contacto
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
-import java.util.*
 
 class FragmentMenu : Fragment() {
 
@@ -88,7 +87,6 @@ class FragmentMenu : Fragment() {
                     "#FFFFFF"
                 )
             )
-            Log.d("dd", contactos.toString())
             tinydb.putListaContactos("Contactos", contactos)
         }
 
@@ -98,48 +96,34 @@ class FragmentMenu : Fragment() {
 
         ///////////////////////////////////////////Acá empieza lo de mover items///////////////////////////////////////////
 
-        val touchHelper = object : ItemTouchHelper.SimpleCallback(
-            ItemTouchHelper.UP or ItemTouchHelper.DOWN,
-            0
-        ) {
-            override fun onMove(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder
-            ): Boolean {
+        val touchHelper = object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0) {
+            override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
                 val sourcePosition = viewHolder.adapterPosition
                 val targetPosition = target.adapterPosition
-                //Notifica los cambios
-                Log.d("dd", contactos.toString())
-                val item: Contacto = contactos.get(sourcePosition)
-                Collections.swap(contactos, sourcePosition,targetPosition)
-                contactos.removeAt(sourcePosition)
-                contactos.add(targetPosition, item)
-                //contactosListAdapter.notifyDataSetChanged()
-                //Guarda cambios en TinyDB
-                contactosListAdapter.notifyItemMoved(sourcePosition,targetPosition)
-                Log.d("mesu", "sads")
+                contactosListAdapter.onItemMove(sourcePosition, targetPosition)
+                Log.d("CONTACTO", contactos.toString())
                 return true
             }
 
-            //No utilizado
+            //Al deslizar
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                TODO("Not yet implemented")
-            }
-
-            override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
-                super.onSelectedChanged(viewHolder, actionState)
-                when (actionState) {
-                    ItemTouchHelper.ACTION_STATE_IDLE -> { //cuando se suelta la app agarrada
-                        tinydb.putListaContactos("Contactos", contactos)
-                        contactosListAdapter.notifyDataSetChanged()
-                        Log.d("tagop", "ta chikito")
-                    }
+                val position = viewHolder.adapterPosition
+                if (direction == ItemTouchHelper.LEFT) {
+                    contactos.removeAt(position)
                 }
             }
 
-
+            //Al soltar
+            override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
+                super.onSelectedChanged(viewHolder, actionState)
+                when (actionState) {
+                    ItemTouchHelper.ACTION_STATE_IDLE -> {
+                        tinydb.putListaContactos("Contactos", contactos)
+                    }
+                }
+            }
         }
+
         val itemTouchHelper = ItemTouchHelper(touchHelper)
         itemTouchHelper.attachToRecyclerView(recyclerContacto)
 
@@ -154,7 +138,6 @@ class FragmentMenu : Fragment() {
         super.onStart()
         //El botón que te lleva al fragment para agregar contactos
         btnAgregar.setOnClickListener {
-            Log.d("lcenbotonagregar", contactos.toString())
             val action = FragmentMenuDirections.actionFragmentMenuToFragmentAgregar()
             v.findNavController().navigate(action)
         }
@@ -163,7 +146,6 @@ class FragmentMenu : Fragment() {
     //Acá está lo relacionado a agregar contactos
     override fun onResume() {
         super.onResume()
-        Log.d("lccuandovuelve", contactos.toString())
         //Notifica los cambios y los guarda en la base de datos
         mContext = requireActivity()
         val tinydb = TinyDB(mContext)

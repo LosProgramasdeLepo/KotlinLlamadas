@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.kotlinllamadas.R
 import com.example.kotlinllamadas.objetos.Contacto
 
-class AdapterContactos (private var listaContactos : MutableList<Contacto>, val onItemClick : (Int) -> Unit) : RecyclerView.Adapter<AdapterContactos.ContactosHolder>() {
+class AdapterContactos(private var listaContactos: MutableList<Contacto>, val onItemClick: (Int) -> Unit) : RecyclerView.Adapter<AdapterContactos.ContactosHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContactosHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.itemcontacto, parent, false)
@@ -23,9 +23,19 @@ class AdapterContactos (private var listaContactos : MutableList<Contacto>, val 
         return listaContactos.size
     }
 
-    fun setData (newData: ArrayList<Contacto>){
+    fun setData(newData: ArrayList<Contacto>){
         this.listaContactos = newData
         this.notifyDataSetChanged()
+    }
+
+    fun removeAt(position: Int) {
+        listaContactos.removeAt(position)
+        notifyItemRemoved(position)
+    }
+
+    fun onItemMove(fromPosition: Int, toPosition: Int) {
+        listaContactos.add(toPosition, listaContactos.removeAt(fromPosition))
+        notifyItemMoved(fromPosition, toPosition)
     }
 
     override fun onBindViewHolder(holder: ContactosHolder, position: Int) {
@@ -66,7 +76,6 @@ class AdapterContactos (private var listaContactos : MutableList<Contacto>, val 
             val clr: CardView = view.findViewById(R.id.cardView)
             clr.setCardBackgroundColor(Color.RED);
         }
-
          */
 
         fun getCardLayout (): CardView {
