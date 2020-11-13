@@ -3,4 +3,5 @@
     <string name="tel_fono">Teléfono</string>
     <string name="nombre">Nombre</string>
     <string name="todo">TODO</string>
+    <string name="color">Color</string>
 </resources>

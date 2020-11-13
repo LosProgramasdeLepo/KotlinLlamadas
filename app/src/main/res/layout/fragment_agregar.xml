@@ -20,8 +20,8 @@
 
     <EditText
         android:id="@+id/editTextNumero"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="228dp"
+        android:layout_height="41dp"
         android:layout_marginTop="20dp"
         android:autofillHints=""
         android:ems="10"
@@ -35,10 +35,11 @@
         android:id="@+id/botonAgregaContacto"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="150dp"
+        android:layout_marginTop="60dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextNumero" />
+        app:layout_constraintTop_toBottomOf="@+id/editTextNumero"
+        app:layout_constraintVertical_bias="0.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

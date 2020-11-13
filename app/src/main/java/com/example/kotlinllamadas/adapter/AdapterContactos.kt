@@ -1,5 +1,6 @@
 package com.example.kotlinllamadas.adapter
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +11,7 @@ import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kotlinllamadas.R
 import com.example.kotlinllamadas.objetos.Contacto
+import java.util.*
 
 class AdapterContactos(private var listaContactos: MutableList<Contacto>, val onItemClick: (Int) -> Unit) : RecyclerView.Adapter<AdapterContactos.ContactosHolder>() {
 
@@ -24,8 +26,8 @@ class AdapterContactos(private var listaContactos: MutableList<Contacto>, val on
     }
 
     fun setData(newData: ArrayList<Contacto>){
-        this.listaContactos = newData
-        this.notifyDataSetChanged()
+        listaContactos = newData
+        notifyDataSetChanged()
     }
 
     fun removeAt(position: Int) {
@@ -33,9 +35,9 @@ class AdapterContactos(private var listaContactos: MutableList<Contacto>, val on
         notifyItemRemoved(position)
     }
 
-    fun onItemMove(fromPosition: Int, toPosition: Int) {
-        listaContactos.add(toPosition, listaContactos.removeAt(fromPosition))
-        notifyItemMoved(fromPosition, toPosition)
+    fun onItemMove(sourcePosition: Int, targetPosition: Int) {
+        listaContactos.add(targetPosition, listaContactos.removeAt(sourcePosition))
+        notifyItemMoved(sourcePosition, targetPosition)
     }
 
     override fun onBindViewHolder(holder: ContactosHolder, position: Int) {
@@ -43,7 +45,7 @@ class AdapterContactos(private var listaContactos: MutableList<Contacto>, val on
         holder.setNombre(listaContactos[position].nombre)
         holder.setNumero(listaContactos[position].numero)
         holder.setIcono(listaContactos[position].icono)
-        //holder.setColor(listaContactos[position].color)
+        holder.setColor(listaContactos[position].color)
 
         //OnClick
         holder.getCardLayout().setOnClickListener {
@@ -71,12 +73,10 @@ class AdapterContactos(private var listaContactos: MutableList<Contacto>, val on
             num.text = numero
         }
 
-        /*
         fun setColor(color: String) {
-            val clr: CardView = view.findViewById(R.id.cardView)
-            clr.setCardBackgroundColor(Color.RED);
+            val card: CardView = view.findViewById(R.id.cardView)
+            card.setCardBackgroundColor(Color.parseColor(color))
         }
-         */
 
         fun getCardLayout (): CardView {
             return view.findViewById(R.id.cardView)

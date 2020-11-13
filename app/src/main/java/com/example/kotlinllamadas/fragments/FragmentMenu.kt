@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,6 +23,7 @@ import com.example.kotlinllamadas.adapter.AdapterContactos
 import com.example.kotlinllamadas.objetos.Contacto
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
+
 
 class FragmentMenu : Fragment() {
 
@@ -60,7 +60,7 @@ class FragmentMenu : Fragment() {
                     "EMERGENCIAS",
                     "107",
                     R.drawable.ic_baseline_local_taxi_24,
-                    "#FFFFFF"
+                    "#F3F3F3"
                 )
             )
             contactos.add(
@@ -68,7 +68,7 @@ class FragmentMenu : Fragment() {
                     "POLICÍA",
                     "911",
                     R.drawable.ic_baseline_local_pizza_24,
-                    "#FFFFFF"
+                    "#45B6FE"
                 )
             )
             contactos.add(
@@ -76,18 +76,9 @@ class FragmentMenu : Fragment() {
                     "BOMBEROS",
                     "100",
                     R.drawable.ic_baseline_fireplace_24,
-                    "#FFFFFF"
+                    "#F04C29"
                 )
             )
-            contactos.add(
-                Contacto(
-                    "PIZZERÍA",
-                    "7932-1281",
-                    R.drawable.ic_baseline_local_pizza_24,
-                    "#FFFFFF"
-                )
-            )
-            tinydb.putListaContactos("Contactos", contactos)
         }
 
         //Adaptador
@@ -96,21 +87,29 @@ class FragmentMenu : Fragment() {
 
         ///////////////////////////////////////////Acá empieza lo de mover items///////////////////////////////////////////
 
-        val touchHelper = object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0) {
-            override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
+        val touchHelper = object : ItemTouchHelper.SimpleCallback(
+            ItemTouchHelper.UP or ItemTouchHelper.DOWN,
+            ItemTouchHelper.LEFT
+        ) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
                 val sourcePosition = viewHolder.adapterPosition
                 val targetPosition = target.adapterPosition
                 contactosListAdapter.onItemMove(sourcePosition, targetPosition)
-                Log.d("CONTACTO", contactos.toString())
+                //Parte de Ciampo
+                val sourceAnterior = contactos[sourcePosition]
+                contactos[sourcePosition] = contactos[targetPosition]
+                contactos[targetPosition] = sourceAnterior
                 return true
             }
 
             //Al deslizar
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val position = viewHolder.adapterPosition
-                if (direction == ItemTouchHelper.LEFT) {
-                    contactos.removeAt(position)
-                }
+                contactosListAdapter.removeAt(viewHolder.adapterPosition)
+                tinydb.putListaContactos("Contactos", contactos)
             }
 
             //Al soltar
@@ -118,19 +117,17 @@ class FragmentMenu : Fragment() {
                 super.onSelectedChanged(viewHolder, actionState)
                 when (actionState) {
                     ItemTouchHelper.ACTION_STATE_IDLE -> {
+                        contactosListAdapter.notifyDataSetChanged()
                         tinydb.putListaContactos("Contactos", contactos)
                     }
                 }
             }
         }
-
         val itemTouchHelper = ItemTouchHelper(touchHelper)
         itemTouchHelper.attachToRecyclerView(recyclerContacto)
-
         ///////////////////////////////////////////Acá termina lo de mover items///////////////////////////////////////////
 
         return v
-
     }
 
     //Acá hay botones
@@ -146,10 +143,7 @@ class FragmentMenu : Fragment() {
     //Acá está lo relacionado a agregar contactos
     override fun onResume() {
         super.onResume()
-        //Notifica los cambios y los guarda en la base de datos
-        mContext = requireActivity()
-        val tinydb = TinyDB(mContext)
-        contactos = tinydb.getListaContactos("Contactos")
+
     }
 
     ///////////////////////////////////////////Acá empiezan los permisos y llamadas///////////////////////////////////////////
