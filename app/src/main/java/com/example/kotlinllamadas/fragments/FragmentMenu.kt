@@ -34,6 +34,7 @@ class FragmentMenu : Fragment() {
     private lateinit var btnAgregar: FloatingActionButton
     private lateinit var linearLayoutManager: LinearLayoutManager
     private lateinit var contactosListAdapter: AdapterContactos
+    private var fueAgregado = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -48,13 +49,14 @@ class FragmentMenu : Fragment() {
         linearLayoutManager = LinearLayoutManager(context)
         recyclerContacto.layoutManager = linearLayoutManager
 
+        //Consigue la lista al iniciar
         mContext = requireActivity()
         val tinydb = TinyDB(mContext)
         contactos = tinydb.getListaContactos("Contactos")
+        fueAgregado = tinydb.getBoolean("Agregados")
 
         //Contactos por defecto
-        if (contactos.size == 0) {
-            //Items de la lista por defecto
+        if (contactos.size == 0 && !fueAgregado) {
             contactos.add(
                 Contacto(
                     "EMERGENCIAS",
@@ -79,27 +81,23 @@ class FragmentMenu : Fragment() {
                     "#F04C29"
                 )
             )
+            fueAgregado = true
+            tinydb.putBoolean("Agregados", fueAgregado)
         }
 
-        //Adaptador
+        //Adapter
         contactosListAdapter =  AdapterContactos(contactos) { position -> onItemClick(position) }
         recyclerContacto.adapter = contactosListAdapter
 
-        ///////////////////////////////////////////Acá empieza lo de mover items///////////////////////////////////////////
+        ///////////////////////////////////////////Acá empieza lo de mover ítems///////////////////////////////////////////
 
-        val touchHelper = object : ItemTouchHelper.SimpleCallback(
-            ItemTouchHelper.UP or ItemTouchHelper.DOWN,
-            ItemTouchHelper.LEFT
-        ) {
-            override fun onMove(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder
-            ): Boolean {
+        val touchHelper = object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.LEFT) {
+
+            //Al mover
+            override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
                 val sourcePosition = viewHolder.adapterPosition
                 val targetPosition = target.adapterPosition
                 contactosListAdapter.onItemMove(sourcePosition, targetPosition)
-                //Parte de Ciampo
                 val sourceAnterior = contactos[sourcePosition]
                 contactos[sourcePosition] = contactos[targetPosition]
                 contactos[targetPosition] = sourceAnterior
@@ -108,24 +106,24 @@ class FragmentMenu : Fragment() {
 
             //Al deslizar
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                contactosListAdapter.removeAt(viewHolder.adapterPosition)
+                contactosListAdapter.remove(viewHolder.adapterPosition)
                 tinydb.putListaContactos("Contactos", contactos)
             }
 
             //Al soltar
             override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
                 super.onSelectedChanged(viewHolder, actionState)
-                when (actionState) {
-                    ItemTouchHelper.ACTION_STATE_IDLE -> {
-                        contactosListAdapter.notifyDataSetChanged()
-                        tinydb.putListaContactos("Contactos", contactos)
-                    }
+                when (actionState) { ItemTouchHelper.ACTION_STATE_IDLE -> {
+                    contactosListAdapter.notifyDataSetChanged()
+                    tinydb.putListaContactos("Contactos", contactos)
+                }
                 }
             }
         }
         val itemTouchHelper = ItemTouchHelper(touchHelper)
         itemTouchHelper.attachToRecyclerView(recyclerContacto)
-        ///////////////////////////////////////////Acá termina lo de mover items///////////////////////////////////////////
+
+        ///////////////////////////////////////////Acá termina lo de mover ítems///////////////////////////////////////////
 
         return v
     }
@@ -138,12 +136,6 @@ class FragmentMenu : Fragment() {
             val action = FragmentMenuDirections.actionFragmentMenuToFragmentAgregar()
             v.findNavController().navigate(action)
         }
-    }
-
-    //Acá está lo relacionado a agregar contactos
-    override fun onResume() {
-        super.onResume()
-
     }
 
     ///////////////////////////////////////////Acá empiezan los permisos y llamadas///////////////////////////////////////////
@@ -187,7 +179,6 @@ class FragmentMenu : Fragment() {
         else {
             //Hay permiso
             flagCall = true
-            Snackbar.make(v, "bien, permiso dado", Snackbar.LENGTH_SHORT).show()
         }
 
         return
@@ -195,7 +186,7 @@ class FragmentMenu : Fragment() {
     }
 
     //Llama
-    private fun startCall(position: Int, listaContactos: MutableList<Contacto>) {
+    private fun startCall(position: Int, listaContactos: ArrayList<Contacto>) {
         if (flagCall){
             //Cambiar el DIAL por call para que llame
             val intent = Intent(

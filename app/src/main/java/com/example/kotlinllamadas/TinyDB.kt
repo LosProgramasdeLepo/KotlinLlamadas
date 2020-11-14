@@ -15,6 +15,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.util.*
+import kotlin.collections.ArrayList
 
 /*
  * Copyright 2014 KC Ochibili
@@ -545,7 +546,7 @@ class TinyDB(appContext: Context?) {
         preferences = PreferenceManager.getDefaultSharedPreferences(appContext)
     }
 
-    fun getListaContactos(key: String?): MutableList<Contacto> {
+    fun getListaContactos(key: String?): ArrayList<Contacto> {
         val gson = Gson()
         val objStrings = getListString(key)
         val objects = ArrayList<Contacto>()
@@ -556,7 +557,7 @@ class TinyDB(appContext: Context?) {
         return objects
     }
 
-    fun putListaContactos(key: String?, objArray: MutableList<Contacto>) {
+    fun putListaContactos(key: String?, objArray: ArrayList<Contacto>) {
         checkForNullKey(key)
         val gson = Gson()
         val objStrings = ArrayList<String>()

@@ -1,12 +1,13 @@
 package com.example.kotlinllamadas.fragments
 
+import android.app.Activity
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import androidx.fragment.app.Fragment
@@ -17,6 +18,7 @@ import com.example.kotlinllamadas.TinyDB
 import com.example.kotlinllamadas.objetos.Contacto
 import com.google.android.material.snackbar.Snackbar
 import java.util.*
+
 
 class FragmentAgregar : Fragment() {
 
@@ -30,9 +32,22 @@ class FragmentAgregar : Fragment() {
     private lateinit var color: String
     private lateinit var mContext: Context
     private var colorAnterior: String = "#F04C29"
-    private val posiblesColores = mutableListOf("#F3F3F3", "#45B6FE", "#F04C29", "#78C422", "#F1FC53", "#FFB41F", "#B854FF")
+    private val posiblesColores = arrayListOf(
+        "#F3F3F3",
+        "#45B6FE",
+        "#F04C29",
+        "#78C422",
+        "#F1FC53",
+        "#FFB41F",
+        "#B854FF"
+    )
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         v =  inflater.inflate(R.layout.fragment_agregar, container, false)
         btnAgregarContacto = v.findViewById(R.id.botonAgregaContacto)
         nombreContacto = v.findViewById(R.id.editTextNombre)
@@ -51,7 +66,8 @@ class FragmentAgregar : Fragment() {
         super.onStart()
 
         //Inicializo SharedPreferences para el color anterior
-        val sharedPref: SharedPreferences = requireContext().getSharedPreferences("Color Anterior", Context.MODE_PRIVATE)
+        val sharedPref: SharedPreferences =
+            requireContext().getSharedPreferences("Color Anterior", Context.MODE_PRIVATE)
         val editor = sharedPref.edit()
 
         //Setea el color anterior guardado
@@ -59,9 +75,7 @@ class FragmentAgregar : Fragment() {
         editor.apply()
 
         //Botón para agregar el contacto
-        btnAgregarContacto.setOnClickListener{
-
-            Log.d("mesi", colorAnterior)
+        btnAgregarContacto.setOnClickListener {
 
             //Toma los EditText
             nombre = nombreContacto.text.toString().toUpperCase(Locale.ROOT)
@@ -70,7 +84,6 @@ class FragmentAgregar : Fragment() {
             //Selecciona y chequea el color
             elegirColor()
             chequearColor()
-            Log.d("mesi2", colorAnterior)
 
             //Guarda el nuevo color anterior
             editor.putString("Color Anterior", colorAnterior)
@@ -83,6 +96,9 @@ class FragmentAgregar : Fragment() {
                 if (nombre.length > 13) {
                     nombre = nombre.substring(0, 13) + "..."
                 }
+
+                //Escondo el teclado
+                hideSoftKeyboard(requireActivity())
 
                 //Agrega el contacto
                 contactos.add(Contacto(nombre, numero, R.drawable.vacio, color))
@@ -101,19 +117,24 @@ class FragmentAgregar : Fragment() {
             }
 
             //Esto existe por las dudas
-            else if(!elColorEstaBien){ elegirColorDistinto () }
+            else if (!elColorEstaBien) {
+                elegirColorDistinto()
+            }
 
             //En caso de estar vacío alguno de los espacios
-            else { Snackbar.make(v, "Debe escribir algo...", Snackbar.LENGTH_SHORT).show() }
-
+            else {
+                Snackbar.make(v, "Debe escribir algo...", Snackbar.LENGTH_SHORT).show()
+            }
         }
     }
 
+    //Elige un color
     private fun elegirColor () {
         posiblesColores.shuffle()
-        color = posiblesColores [1]
+        color = posiblesColores[1]
     }
 
+    //Comprueba la validez del color
     private fun chequearColor () {
         //Si está bien genial
         if (color != colorAnterior) {
@@ -127,11 +148,20 @@ class FragmentAgregar : Fragment() {
         return
     }
 
+    //Vuelve a seleccionar un color
     private fun elegirColorDistinto () {
-        //Vuelve a seleccionar
         elegirColor()
         chequearColor()
         return
+    }
+
+    //Función para esconder el teclado
+    private fun hideSoftKeyboard(activity: Activity) {
+        if (activity.currentFocus == null){
+            return
+        }
+        val inputMethodManager = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(activity.currentFocus!!.windowToken, 0)
     }
 
 }
