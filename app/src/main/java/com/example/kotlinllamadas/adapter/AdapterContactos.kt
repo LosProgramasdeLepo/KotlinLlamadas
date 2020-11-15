@@ -11,9 +11,11 @@ import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kotlinllamadas.R
 import com.example.kotlinllamadas.objetos.Contacto
-import java.util.*
 
-class AdapterContactos(private var listaContactos: MutableList<Contacto>, val onItemClick: (Int) -> Unit) : RecyclerView.Adapter<AdapterContactos.ContactosHolder>() {
+class AdapterContactos(
+    private var listaContactos: ArrayList<Contacto>,
+    val onItemClick: (Int) -> Unit
+) : RecyclerView.Adapter<AdapterContactos.ContactosHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContactosHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.itemcontacto, parent, false)
@@ -25,18 +27,13 @@ class AdapterContactos(private var listaContactos: MutableList<Contacto>, val on
         return listaContactos.size
     }
 
-    fun setData(newData: ArrayList<Contacto>){
-        listaContactos = newData
-        notifyDataSetChanged()
-    }
-
-    fun removeAt(position: Int) {
+    fun remove(position: Int) {
         listaContactos.removeAt(position)
         notifyItemRemoved(position)
     }
 
     fun onItemMove(sourcePosition: Int, targetPosition: Int) {
-        listaContactos.add(targetPosition, listaContactos.removeAt(sourcePosition))
+        //listaContactos.add(targetPosition, listaContactos.removeAt(sourcePosition))
         notifyItemMoved(sourcePosition, targetPosition)
     }
 
@@ -85,3 +82,4 @@ class AdapterContactos(private var listaContactos: MutableList<Contacto>, val on
     }
 
 }
+
